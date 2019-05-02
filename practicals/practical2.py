@@ -60,12 +60,13 @@ class fcn8s(fcn):
 
         # Compute probability maps
         score = self.classifier(fconv)
-        score_pool4 = self.score_pool4(conv4)
-        score_pool3 = self.score_pool3(conv3)
-        scores = [score.detach(), score_pool4.detach(),
-                  score_pool3.detach()]
 
         if not self.transconv:
+            score_pool4 = self.score_pool4(conv4)
+            score_pool3 = self.score_pool3(conv3)
+            scores = [score.detach(), score_pool4.detach(),
+                      score_pool3.detach()]
+
             score = F.upsample(score, score_pool4.size()[2:])
             score += score_pool4
             score = F.upsample(score, score_pool3.size()[2:])
@@ -79,6 +80,8 @@ class fcn8s(fcn):
 
             score_pool3c = self.score_pool3(conv3)[:, :, 9:9+upscore_pool4.size()[2],
                                                          9:9+upscore_pool4.size()[3]]
+            scores = [score.detach(), score_pool4c.detach(),
+                      score_pool3c.detach()]
 
             out = self.upscore8(score_pool3c + upscore_pool4)[:, :, 31:31+x.size()[2],
                                                                     31:31+x.size()[3]]
